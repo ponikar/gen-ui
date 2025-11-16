@@ -61,7 +61,7 @@ export default function Chatbot() {
   };
 
   return (
-    <div className="flex flex-col max-w-md mx-auto h-screen p-4">
+    <div className="flex flex-col mx-auto h-screen p-4">
       <div className="flex-grow overflow-auto space-y-4 mb-4">
         {messages.map((message) => {
           console.log("message", message);
@@ -69,7 +69,7 @@ export default function Chatbot() {
           return (
             <div
               key={message.id}
-              className={`max-w-xs break-words rounded p-3 ${
+              className={`break-words rounded p-3 ${
                 message.role === "user"
                   ? "bg-blue-100 self-end"
                   : "bg-gray-100 self-start"

@@ -331,6 +331,7 @@ import {
   TooltipContent,
   TooltipProvider,
 } from "~/components/ui/tooltip";
+import { DataTable } from "../ui/data-table";
 
 interface RenderUIMetadata {
   deps: string[];
@@ -658,6 +659,7 @@ export const RenderUI: React.FC<RenderUIProps> = ({
     TooltipTrigger,
     TooltipContent,
     TooltipProvider,
+    DataTable,
   };
 
   const Component = new Function(
