@@ -25,6 +25,13 @@ export const area = pgTable("area", {
 	latitude: text("latitude"),
 	longitude: text("longitude"),
 	pincode: integer("pincode"),
+	created_at: timestamp("created_at").defaultNow(),
+	updated_at: timestamp("updated_at").defaultNow(),
+});
+
+export const area_history = pgTable("area_history", {
+	area_history_id: serial("area_history_id").primaryKey(),
+	area_id: integer("area_id").references(() => area.area_id),
 	crisis_id: integer("crisis_id").references(() => crisis.crisis_id),
 	impacted_users: integer("impacted_users"),
 	month: timestamp("month"),
