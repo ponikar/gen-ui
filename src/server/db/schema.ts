@@ -105,3 +105,19 @@ export const hospital_inventory = pgTable("hospital_inventory", {
 	created_at: timestamp("created_at").defaultNow(),
 	updated_at: timestamp("updated_at").defaultNow(),
 });
+
+export const disease = pgTable("disease", {
+	disease_id: serial("disease_id").primaryKey(),
+	crisis_id: integer("crisis_id")
+		.references(() => crisis.crisis_id)
+		.notNull(),
+
+	disease_name: text("disease_name").notNull(),
+	description: text("description"),
+	severity_level: text("severity_level"),
+	symptoms: text("symptoms"),
+	common_causes: text("common_causes"),
+
+	peak_season: text("peak_season"),
+	peak_months: text("peak_months"),
+});

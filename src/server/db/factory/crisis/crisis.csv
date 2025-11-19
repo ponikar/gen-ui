@@ -1,0 +1,5 @@
+crisis_id,crisis_name,crisis_tag,description,severity_level,created_at,updated_at
+1,Ganpati Festival,festival,"Annual Ganpati Festival attracting millions, causing large gatherings and requiring crowd management.",medium,2025-11-18 22:30:00,2025-11-18 22:30:00
+2,Celebrity Concert,festival,"Large scale celebrity concerts causing crowd and traffic congestion.",medium,2025-11-18 22:30:00,2025-11-18 22:30:00
+3,Air Pollution,pollution,"Rising air pollution levels affecting public health.",high,2025-11-18 22:30:00,2025-11-18 22:30:00
+4,Covid 19,epidemic,"Ongoing Covid 19 impact and management.",high,2025-11-18 22:30:00,2025-11-18 22:30:00
