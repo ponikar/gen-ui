@@ -45,7 +45,6 @@ export const crisis = pgTable("crisis", {
 	crisis_name: text("crisis_name"),
 	crisis_tag: crisisTagEnum("crisis_tag"),
 	description: text("description"),
-	severity_level: text("severity_level"),
 	created_at: timestamp("created_at").defaultNow(),
 	updated_at: timestamp("updated_at").defaultNow(),
 });
