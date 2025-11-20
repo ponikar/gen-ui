@@ -1,44 +1,86 @@
-import { AIMessage, HumanMessage } from "@langchain/core/messages";
+import {
+	AIMessage,
+	BaseMessage,
+	HumanMessage,
+	type MessageStructure,
+	type MessageType,
+} from "@langchain/core/messages";
 import { ToolNode } from "@langchain/langgraph/prebuilt";
 
-import { StateGraph, START, END } from "@langchain/langgraph";
-import { dataSourceTool } from "./tools";
+import {
+	StateGraph,
+	START,
+	END,
+	type StateType,
+	BinaryOperatorAggregate,
+	type Messages,
+} from "@langchain/langgraph";
 import { Model } from "./model";
 import { AgentState } from "./state";
+import { fetchHistoricalDataTool, searchCrisisDataTool } from "./tools";
+import type { DynamicStructuredTool } from "@langchain/core/tools";
 
-const tools = [...dataSourceTool];
-
-const toolNode = new ToolNode(tools);
+const tools = [searchCrisisDataTool, fetchHistoricalDataTool];
 
 const llm = Model.llm.bindTools(tools);
 
-const graph = new StateGraph(AgentState.initialState)
-	.addNode("agent", async (state) => {
-		console.log("[agent -> node]:", state);
-		const { messages } = state;
-		const response = await llm.invoke(messages);
-		return { messages: [response] };
-	})
-	.addNode("tools", async (state) => {
-		console.log(`[Retry count: ${state.retry_count}]`);
+const handleToolError = (state: any, toolName: string) => {
+	if ((state.retry_count || 0) > 0) {
+		if (state.retry_count > 2) {
+			console.log(`Max retries for ${toolName}. Ending.`);
+			return END;
+		}
+		console.log(`Retrying ${toolName}...`);
+		return toolName;
+	}
+	return "agent";
+};
 
+const createToolNode =
+	(tool: DynamicStructuredTool) =>
+	async (
+		state: StateType<{
+			retry_count: BinaryOperatorAggregate<number, number>;
+			messages: BinaryOperatorAggregate<
+				BaseMessage<MessageStructure, MessageType>[],
+				Messages
+			>;
+		}>,
+	) => {
+		const toolNode = new ToolNode([tool]);
 		const result = await toolNode.invoke(state);
 
 		const lastMessage = result.messages[result.messages.length - 1];
-		const toolResponse = JSON.parse(lastMessage.content);
-
-		if (toolResponse.error) {
+		try {
+			const toolResponse = JSON.parse(lastMessage.content);
+			if (toolResponse.error) {
+				console.log(`${tool.name} failed.`);
+				return {
+					...result,
+					retry_count: (state.retry_count || 0) + 1,
+				};
+			}
+		} catch (e) {
+			// content is not valid JSON, treat as error
+			console.log(`${tool.name} failed with invalid output.`);
 			return {
-				messages: result.messages,
-				retry_count: state.retry_count + 1,
+				...result,
+				retry_count: (state.retry_count || 0) + 1,
 			};
 		}
 
-		return {
-			messages: result.messages,
-			retry_count: 0,
-		};
+		return { ...result, retry_count: 0 };
+	};
+
+const graph = new StateGraph(AgentState.initialState)
+	.addNode("agent", async (state) => {
+		console.log("[agent -> node]:");
+		const { messages } = state;
+		const response = await llm.invoke(messages);
+		return { messages: [response], retry_count: 0 };
 	})
+	.addNode("search_tool", createToolNode(searchCrisisDataTool))
+	.addNode("fetch_tool", createToolNode(fetchHistoricalDataTool))
 	.addConditionalEdges("agent", (state) => {
 		const { messages } = state;
 		const lastMessage = messages[messages.length - 1];
@@ -49,21 +91,25 @@ const graph = new StateGraph(AgentState.initialState)
 			lastMessage.tool_calls?.length &&
 			lastMessage.tool_calls.length > 0
 		) {
-			return "tools";
+			const toolName = lastMessage?.tool_calls[0]?.name;
+			if (toolName === "search_crisis_data") {
+				console.log("[routing]: search_tool");
+				return "search_tool";
+			}
+			if (toolName === "fetch_historical_crisis_data") {
+				console.log("[routing]: fetch_tool");
+				return "fetch_tool";
+			}
 		}
 		return END;
 	})
 	.addEdge(START, "agent")
-	.addEdge("tools", "agent")
-	.addConditionalEdges("tools", (state) => {
-		// Exit after 3 failed attempts
-		if (state.retry_count >= 3) {
-			console.log("Max retries reached. Exiting loop.");
-			return END;
-		}
-
-		return "agent";
-	});
+	.addConditionalEdges("search_tool", (state) =>
+		handleToolError(state, "search_tool"),
+	)
+	.addConditionalEdges("fetch_tool", (state) =>
+		handleToolError(state, "fetch_tool"),
+	);
 
 const agent = graph.compile({
 	interruptBefore: [],
@@ -73,7 +119,7 @@ const result = await agent.invoke({
 	messages: [
 		Model.systemPrompt,
 		new HumanMessage(
-			"Hi, I need help preparing for the upcoming Ganpati festival crisis response.",
+			"Hi, can you please list out all the past historical data of mumbai andheri, ganpati festival",
 		),
 	],
 });
