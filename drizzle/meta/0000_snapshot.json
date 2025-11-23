@@ -1,301 +1,9 @@
 {
-  "id": "2ac7bd52-3dfe-4b72-903b-28506c1f7099",
+  "id": "bfb1ffc9-1fc5-422a-8cb8-146c8f0fa3d7",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.area": {
-      "name": "area",
-      "schema": "",
-      "columns": {
-        "area_id": {
-          "name": "area_id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "city": {
-          "name": "city",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "region": {
-          "name": "region",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "latitude": {
-          "name": "latitude",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "longitude": {
-          "name": "longitude",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "pincode": {
-          "name": "pincode",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.area_history": {
-      "name": "area_history",
-      "schema": "",
-      "columns": {
-        "area_history_id": {
-          "name": "area_history_id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "area_id": {
-          "name": "area_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "crisis_id": {
-          "name": "crisis_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "impacted_users": {
-          "name": "impacted_users",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "month": {
-          "name": "month",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "year": {
-          "name": "year",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "area_history_area_id_area_area_id_fk": {
-          "name": "area_history_area_id_area_area_id_fk",
-          "tableFrom": "area_history",
-          "tableTo": "area",
-          "columnsFrom": [
-            "area_id"
-          ],
-          "columnsTo": [
-            "area_id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "area_history_crisis_id_crisis_crisis_id_fk": {
-          "name": "area_history_crisis_id_crisis_crisis_id_fk",
-          "tableFrom": "area_history",
-          "tableTo": "crisis",
-          "columnsFrom": [
-            "crisis_id"
-          ],
-          "columnsTo": [
-            "crisis_id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.crisis": {
-      "name": "crisis",
-      "schema": "",
-      "columns": {
-        "crisis_id": {
-          "name": "crisis_id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "crisis_name": {
-          "name": "crisis_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "crisis_tag": {
-          "name": "crisis_tag",
-          "type": "crisis_tag",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "severity_level": {
-          "name": "severity_level",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.disease": {
-      "name": "disease",
-      "schema": "",
-      "columns": {
-        "disease_id": {
-          "name": "disease_id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "crisis_id": {
-          "name": "crisis_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "disease_name": {
-          "name": "disease_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "severity_level": {
-          "name": "severity_level",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "symptoms": {
-          "name": "symptoms",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "common_causes": {
-          "name": "common_causes",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "peak_season": {
-          "name": "peak_season",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "peak_months": {
-          "name": "peak_months",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "disease_crisis_id_crisis_crisis_id_fk": {
-          "name": "disease_crisis_id_crisis_crisis_id_fk",
-          "tableFrom": "disease",
-          "tableTo": "crisis",
-          "columnsFrom": [
-            "crisis_id"
-          ],
-          "columnsTo": [
-            "crisis_id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.hospital": {
       "name": "hospital",
       "schema": "",
@@ -324,9 +32,33 @@
           "primaryKey": false,
           "notNull": false
         },
-        "staff_count": {
-          "name": "staff_count",
-          "type": "integer",
+        "map_location": {
+          "name": "map_location",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "address": {
+          "name": "address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "latitude": {
+          "name": "latitude",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "longitude": {
+          "name": "longitude",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "contact_number": {
+          "name": "contact_number",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
@@ -346,21 +78,7 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "hospital_area_id_area_area_id_fk": {
-          "name": "hospital_area_id_area_area_id_fk",
-          "tableFrom": "hospital",
-          "tableTo": "area",
-          "columnsFrom": [
-            "area_id"
-          ],
-          "columnsTo": [
-            "area_id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -472,6 +190,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "staff_name": {
+          "name": "staff_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "specializations": {
           "name": "specializations",
           "type": "text",
@@ -526,158 +250,9 @@
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
-    },
-    "public.supplement": {
-      "name": "supplement",
-      "schema": "",
-      "columns": {
-        "supplement_id": {
-          "name": "supplement_id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "supplement_name": {
-          "name": "supplement_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "unit": {
-          "name": "unit",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.supplement_and_crisis_priority": {
-      "name": "supplement_and_crisis_priority",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "crisis_id": {
-          "name": "crisis_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "supplement_id": {
-          "name": "supplement_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "priority_level": {
-          "name": "priority_level",
-          "type": "priority_level",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "avg_consumption_multiplier": {
-          "name": "avg_consumption_multiplier",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "supplement_and_crisis_priority_crisis_id_crisis_crisis_id_fk": {
-          "name": "supplement_and_crisis_priority_crisis_id_crisis_crisis_id_fk",
-          "tableFrom": "supplement_and_crisis_priority",
-          "tableTo": "crisis",
-          "columnsFrom": [
-            "crisis_id"
-          ],
-          "columnsTo": [
-            "crisis_id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "supplement_and_crisis_priority_supplement_id_supplement_supplement_id_fk": {
-          "name": "supplement_and_crisis_priority_supplement_id_supplement_supplement_id_fk",
-          "tableFrom": "supplement_and_crisis_priority",
-          "tableTo": "supplement",
-          "columnsFrom": [
-            "supplement_id"
-          ],
-          "columnsTo": [
-            "supplement_id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
     }
   },
-  "enums": {
-    "public.crisis_tag": {
-      "name": "crisis_tag",
-      "schema": "public",
-      "values": [
-        "festival",
-        "pollution",
-        "epidemic"
-      ]
-    },
-    "public.priority_level": {
-      "name": "priority_level",
-      "schema": "public",
-      "values": [
-        "high",
-        "medium",
-        "low"
-      ]
-    }
-  },
+  "enums": {},
   "schemas": {},
   "sequences": {},
   "roles": {},
