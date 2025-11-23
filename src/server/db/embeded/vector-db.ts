@@ -5,3 +5,9 @@ export const vectorDb = new QdrantClient({
   apiKey: process.env.VECTOR_DB_API_TOKEN,
 });
 
+
+
+export const VECTOR_COLLECTION_NAME = {
+    CRISIS: "crisis",
+    AREA_HISTORY: "area_history",
+}

@@ -1,83 +1,68 @@
 import { DynamicStructuredTool } from "@langchain/core/tools";
-import z from "zod";
+import { QdrantVectorStore } from "@langchain/qdrant";
+import { z } from "zod";
+import { vectorDb, VECTOR_COLLECTION_NAME } from "~/server/db/embeded/vector-db";
 import { Model } from "../model";
-import { db } from "~/server/db";
-import { area_history } from "~/server/db/schema";
-import { and, eq } from "drizzle-orm";
-
-export const fetchHistoricalDataTool = new DynamicStructuredTool({
-	name: "fetch_historical_crisis_data",
-	description:
-		"Fetches historical crisis data from database. Returns error message if crisis_id or area_id is invalid.",
-	schema: z.object({
-		crisis_id: z
-			.number()
-			.describe("Crisis id that can be searchable inside crisis table"),
-		area_id: z
-			.number()
-			.describe("Area id that can be searchable inside area table"),
-	}),
-	func: async ({ crisis_id, area_id }) => {
-		console.log("calling fetch_tool", crisis_id, area_id);
-		return JSON.stringify({
-			message: `
-            area_id: 1, Mumbai andheri
-            crisis_id: 1, Ganpati festival
-area_history_id,area_id,crisis_id,impacted_users,month,year,created_at,updated_at
-1,1,1,16,2023-11-01 00:00:00,2023,2025-11-17 19:14:01,2025-11-17 19:14:01
-2,2,1,2,2023-11-01 00:00:00,2023,2025-11-17 19:14:01,2025-11-17 19:14:01
-3,3,1,4,2023-11-01 00:00:00,2023,2025-11-17 19:14:01,2025-11-17 19:14:01
-4,4,1,41,2023-11-01 00:00:00,2023,2025-11-17 19:14:01,2025-11-17 19:14:01
-5,5,1,15,2023-11-01 00:00:00,2023,2025-11-17 19:14:01,2025-11-17 19:14:01
-6,6,1,38,2023-11-01 00:00:00,2023,2025-11-17 19:14:01,2025-11-17 19:14:01`,
-		});
-
-		try {
-			const data = await db
-				.select()
-				.from(area_history)
-				.where(
-					and(
-						eq(area_history.crisis_id, crisis_id),
-						eq(area_history.area_id, area_id),
-					),
-				);
-
-			return JSON.stringify({ error: false, data });
-		} catch (e) {
-			return JSON.stringify({
-				error: e,
-				message: "Tool calling failed, look at error message",
-			});
-		}
-	},
-});
 
 export const searchCrisisDataTool = new DynamicStructuredTool({
-	name: "search_crisis_data",
-	description:
-		"Search historical crisis data from past Crisis. Returns area-level crisis metrics including emergency admissions, resource usage patterns, and geographic information.",
-	schema: z.object({
-		query: z
-			.string()
-			.describe(
-				"Query should contain region and crisis information, refine it before you send it.",
-			),
-	}),
-	func: async ({ query }, runManager) => {
-		console.log("calling search_tool");
+  name: "search_crisis_data",
+  description: "Search for crisis and relevant area history based on user query.",
+  schema: z.object({
+    query: z.string().describe("User query about a crisis"),
+  }),
+  func: async ({ query }) => {
+    try {
+      // 1. Search Crisis
+      const crisisStore = new QdrantVectorStore(Model.embeddings, {
+        client: vectorDb,
+        collectionName: VECTOR_COLLECTION_NAME.CRISIS,
+      });
 
-		return JSON.stringify({ crisis_id: 1, area_id: 1 });
-		// Embed the query
-		const queryEmbedding = await Model.embeddings.embedQuery(query);
+      const crisisResults = await crisisStore.similaritySearch(query, 1);
+      if (!crisisResults.length) {
+        return JSON.stringify({ message: "No relevant crisis found." });
+      }
 
-		// TODO: vector search here with langchain of course
+      const crisisData = crisisResults[0];
+      if (!crisisData) {
+        return JSON.stringify({ message: "No relevant crisis found." });
+      }
+      const crisisId = crisisData.metadata.crisis_id;
+      console.log("Found crisis_id:", crisisId);
 
-		return JSON.stringify({
-			query,
-			vectors: [],
-		});
-	},
+      // 2. Search Area History with filter
+      const areaStore = new QdrantVectorStore(Model.embeddings, {
+        client: vectorDb,
+        collectionName: VECTOR_COLLECTION_NAME.AREA_HISTORY,
+      });
+
+      // Qdrant filter for metadata
+      // Note: passing raw Qdrant filter structure
+
+      const areaResults = await areaStore.similaritySearch(query, 8, {
+        must: [
+          {
+            key: "crisis_id",
+            match: {
+              value: crisisId,
+            },
+          },
+        ],
+      });
+
+      return JSON.stringify({
+        crisis: crisisData.metadata,
+        area_history: areaResults.map((r) => ({
+          content: r.pageContent,
+          metadata: r.metadata,
+        })),
+      });
+    } catch (error) {
+      console.error("Error in search_crisis_data tool:", error);
+      return JSON.stringify({
+        error: true,
+        message: "Failed to search crisis data.",
+      });
+    }
+  },
 });
-
-export const dataSourceTool = [searchCrisisDataTool, fetchHistoricalDataTool];

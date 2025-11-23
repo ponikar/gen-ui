@@ -17,10 +17,10 @@ import {
 } from "@langchain/langgraph";
 import { Model } from "./model";
 import { AgentState } from "./state";
-import { fetchHistoricalDataTool, searchCrisisDataTool } from "./tools";
+import { searchCrisisDataTool } from "./tools";
 import type { DynamicStructuredTool } from "@langchain/core/tools";
 
-const tools = [searchCrisisDataTool, fetchHistoricalDataTool];
+const tools = [searchCrisisDataTool];
 
 const llm = Model.llm.bindTools(tools);
 
@@ -80,7 +80,6 @@ const graph = new StateGraph(AgentState.initialState)
 		return { messages: [response], retry_count: 0 };
 	})
 	.addNode("search_tool", createToolNode(searchCrisisDataTool))
-	.addNode("fetch_tool", createToolNode(fetchHistoricalDataTool))
 	.addConditionalEdges("agent", (state) => {
 		const { messages } = state;
 		const lastMessage = messages[messages.length - 1];
@@ -96,19 +95,12 @@ const graph = new StateGraph(AgentState.initialState)
 				console.log("[routing]: search_tool");
 				return "search_tool";
 			}
-			if (toolName === "fetch_historical_crisis_data") {
-				console.log("[routing]: fetch_tool");
-				return "fetch_tool";
-			}
 		}
 		return END;
 	})
 	.addEdge(START, "agent")
 	.addConditionalEdges("search_tool", (state) =>
 		handleToolError(state, "search_tool"),
-	)
-	.addConditionalEdges("fetch_tool", (state) =>
-		handleToolError(state, "fetch_tool"),
 	);
 
 const agent = graph.compile({

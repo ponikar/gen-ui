@@ -1,12 +1,9 @@
 import { CSVLoader } from "@langchain/community/document_loaders/fs/csv";
-import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { QdrantVectorStore } from "@langchain/qdrant";
 import path from "path";
 import { fileURLToPath } from "url";
 import { vectorDb } from "./vector-db";
-
-
-
+import { Model } from "~/server/agent/model";
 
 
 export async function embedDocuments(
@@ -36,11 +33,8 @@ export async function embedDocuments(
     }
   }
 
-  const embeddings = new GoogleGenerativeAIEmbeddings({
-    model: "text-embedding-004",
-  });
-
-  const vectorStore = new QdrantVectorStore(embeddings, {
+ 
+  const vectorStore = new QdrantVectorStore(Model.embeddings, {
     client: vectorDb,
     collectionName,
   });
